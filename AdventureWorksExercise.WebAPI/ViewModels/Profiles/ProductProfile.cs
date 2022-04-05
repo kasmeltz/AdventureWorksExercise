@@ -7,7 +7,10 @@ namespace AdventureWorksExercise.WebAPI.ViewModels.Profiles
     {
         public ProductProfile()
         {
-            CreateMap<Product, ProductViewModel>();
+            CreateMap<Product, ProductViewModel>()
+                .ForMember(d => d.Photos, o => o.MapFrom(s => s.ProductProductPhotos))
+                .ForMember(d => d.Subcategory, o => o.MapFrom(s => s.ProductSubcategory!.Name))
+                .ForMember(d => d.Category, o => o.MapFrom(s => s.ProductSubcategory!.ProductCategory!.Name));
         }
     }
 }

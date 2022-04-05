@@ -4,6 +4,7 @@ using AdventureWorksExercise.Data.Pagination;
 using AdventureWorksExercise.WebAPI.ViewModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdventureWorksExercise.WebAPI.Controllers.V1
 {
@@ -56,7 +57,10 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
             var pagedResult = await ProductDataServices
                 .ListAsync(pagedQuery, q => q
-                    .Select(o => new Product { ProductId = o.ProductId, Name = o.Name }));
+                    .Include(o => o.ProductProductPhotos)
+                        .ThenInclude(o => o.ProductPhoto)
+                    .Include(o => o.ProductSubcategory)
+                        .ThenInclude(o => o!.ProductCategory));
 
             return Ok(ToViewModels<Product, ProductViewModel>(pagedResult));
         }
@@ -69,6 +73,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         {
             var pagedViewModels = new PaginatedResult<K>(pagedResult.Query)
             {
+                Page = pagedResult.Page,
                 TotalRecordCount = pagedResult.TotalRecordCount
             };
 
