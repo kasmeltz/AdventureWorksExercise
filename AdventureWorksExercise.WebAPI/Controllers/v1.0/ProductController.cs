@@ -11,29 +11,24 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    public class ProductController : ControllerBase
+    public class ProductController : ApiControllerBase
     {
         #region Constructors
 
         public ProductController(
             IMapper mapper,
             ILogger<ProductController> logger,
-            EFProductDataServices productDataServices)
+            EFProductDataServices productDataServices) : 
+            base(mapper, logger)
         {
-            Logger = logger;
             ProductDataServices = productDataServices;
-            Mapper = mapper;
         }
 
         #endregion
 
         #region Members
 
-        protected IMapper Mapper { get; set; }
-
         protected EFProductDataServices ProductDataServices { get; set; }
-
-        protected ILogger Logger { get; set; }
 
         #endregion
 
@@ -63,35 +58,6 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                         .ThenInclude(o => o!.ProductCategory));
 
             return Ok(ToViewModels<Product, ProductViewModel>(pagedResult));
-        }
-
-        #endregion
-
-        #region Helper Methods
-
-        public PaginatedResult<K> ToViewModels<T,K>(PaginatedResult<T> pagedResult)
-        {
-            var pagedViewModels = new PaginatedResult<K>(pagedResult.Query)
-            {
-                Page = pagedResult.Page,
-                TotalRecordCount = pagedResult.TotalRecordCount
-            };
-
-            var viewModels = new List<K>();
-
-            if (pagedResult.Records != null &&
-                pagedResult.Records.Any())
-            {
-                foreach (var record in pagedResult.Records)
-                {
-                    viewModels
-                        .Add(Mapper.Map<K>(record));
-                }
-            }
-
-            pagedViewModels.Records = viewModels;
-
-            return pagedViewModels;
         }
 
         #endregion
