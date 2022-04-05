@@ -1,6 +1,8 @@
 using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
 using AdventureWorksExercise.Data.Pagination;
+using AdventureWorksExercise.WebAPI.ViewModels;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdventureWorksExercise.WebAPI.Controllers.V1
@@ -13,16 +15,20 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         #region Constructors
 
         public ProductController(
-            ILogger<ProductController> logger, 
+            IMapper mapper,
+            ILogger<ProductController> logger,
             EFProductDataServices productDataServices)
         {
-            Logger = logger; 
+            Logger = logger;
             ProductDataServices = productDataServices;
+            Mapper = mapper;
         }
 
         #endregion
 
         #region Members
+
+        protected IMapper Mapper { get; set; }
 
         protected EFProductDataServices ProductDataServices { get; set; }
 
@@ -46,7 +52,23 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                 .ListAsync(pagedQuery, q => q
                     .Select(o => new Product { ProductId = o.ProductId }));
 
-            return Ok(pagedResult);
+            var pagedViewModels = new PagedResult<ProductViewModel>
+            {
+                Query = pagedResult.Query,
+                TotalRecordCount = pagedResult.TotalRecordCount
+            };
+
+            var viewModels = new List<ProductViewModel>();
+
+            foreach (var record in pagedResult.Records)
+            {
+                viewModels
+                    .Add(Mapper.Map<ProductViewModel>(record));
+            }
+
+            pagedViewModels.Records = viewModels;
+
+            return Ok(pagedViewModels);
         }
 
         #endregion

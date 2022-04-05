@@ -14,5 +14,11 @@ namespace AdventureWorksExercise.Data.DataServices
         }
 
         #endregion
+
+        #region EFDataServicesBase 
+
+        public override IQueryable<Product> DefaultSort(IQueryable<Product> query) => query.OrderBy(o => o.ProductId);
+
+        #endregion
     }
 }

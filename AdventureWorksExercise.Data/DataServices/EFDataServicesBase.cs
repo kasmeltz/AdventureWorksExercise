@@ -31,6 +31,12 @@ namespace AdventureWorksExercise.Data.DataServices
 
         #endregion
 
+        #region Abstract Members
+
+        public abstract IQueryable<T> DefaultSort(IQueryable<T> query);
+
+        #endregion
+
         #region IGenericDataServices 
 
         public async Task<PagedResult<T>> ListAsync(PagedQuery pagedQuery, Func<IQueryable<T>, IQueryable<T>>? queryOperations = null)
@@ -46,6 +52,12 @@ namespace AdventureWorksExercise.Data.DataServices
             if (queryOperations != null)
             {
                 query = queryOperations(query);
+            }
+
+            if (pagedQuery.SortTerms == null || 
+                !pagedQuery.SortTerms.Any())
+            {
+                query = DefaultSort(query);
             }
 
             int totalRecordCount = await query
