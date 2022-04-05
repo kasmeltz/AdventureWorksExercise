@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
 
-namespace AdventureWorksExercise.WebAPI.Controllers
+namespace AdventureWorksExercise.WebAPI.Controllers.V1
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class ProductController : ControllerBase
     {
         #region Constructors
@@ -30,6 +31,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers
 
         #region Routes
 
+        [MapToApiVersion("1.0")]
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
