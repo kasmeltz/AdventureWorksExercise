@@ -35,6 +35,26 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         #region Routes
 
         [MapToApiVersion("1.0")]
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            var product = await ProductDataServices
+                .GetById(id, q => q
+                    .Include(o => o.ProductProductPhotos)
+                        .ThenInclude(o => o.ProductPhoto)
+                    .Include(o => o.ProductSubcategory)
+                        .ThenInclude(o => o!.ProductCategory));
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(Mapper
+                .Map<ProductViewModel>(product));
+        }
+
+        [MapToApiVersion("1.0")]
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {

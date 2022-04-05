@@ -36,9 +36,27 @@ namespace AdventureWorksExercise.Data.DataServices
 
         public abstract IQueryable<T> DefaultSort(IQueryable<T> query);
 
+        public abstract IQueryable<T> GetQuery(int id, IQueryable<T> query);
+
         #endregion
 
         #region IGenericDataServices 
+
+        public async Task<T?> GetById(int id, Func<IQueryable<T>, IQueryable<T>>? queryOperations = null)
+        {
+            var query = DbSet
+                .AsQueryable();
+
+            if (queryOperations != null)
+            {
+                query = queryOperations(query);
+            }
+
+            query = GetQuery(id, query);
+
+            return await query
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<PaginatedResult<T>> ListAsync(PaginatedQuery pagedQuery, Func<IQueryable<T>, IQueryable<T>>? queryOperations = null)
         {
