@@ -1,4 +1,5 @@
 using AdventureWorksExercise.Data.DataServices;
+using AdventureWorksExercise.Data.Models;
 using AdventureWorksExercise.Data.Pagination;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,10 +36,15 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
-            var pagedQuery = new PagedQuery();
+            var pagedQuery = new PagedQuery
+            {
+                Page = 1,
+                PageSize = 10
+            };
 
             var pagedResult = await ProductDataServices
-                .ListAsync(pagedQuery);
+                .ListAsync(pagedQuery, q => q
+                    .Select(o => new Product { ProductId = o.ProductId }));
 
             return Ok(pagedResult);
         }

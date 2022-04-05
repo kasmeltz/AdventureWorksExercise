@@ -33,14 +33,33 @@ namespace AdventureWorksExercise.Data.DataServices
 
         #region IGenericDataServices 
 
-        public async Task<PagedResult<T>> ListAsync(PagedQuery query, Func<IQueryable<T>, IQueryable<T>> queryOperations = null)
+        public async Task<PagedResult<T>> ListAsync(PagedQuery pagedQuery, Func<IQueryable<T>, IQueryable<T>>? queryOperations = null)
         {
             PagedResult<T> pagedResult = new PagedResult<T>
             {
-                Query = query
+                Query = pagedQuery
             };
 
-            pagedResult.Records = await DbSet
+            var query = DbSet
+                .AsQueryable();
+
+            if (queryOperations != null)
+            {
+                query = queryOperations(query);
+            }
+
+            int totalRecordCount = await query
+                .CountAsync();
+
+            pagedResult.TotalRecordCount = totalRecordCount;
+
+            int offset = (pagedQuery.Page - 1) * pagedQuery.PageSize;
+
+            query = query
+                .Skip(offset)
+                .Take(pagedQuery.PageSize);
+
+            pagedResult.Records = await query
                 .ToListAsync();
 
             return pagedResult;
