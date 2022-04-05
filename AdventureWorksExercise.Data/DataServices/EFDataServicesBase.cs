@@ -37,9 +37,7 @@ namespace AdventureWorksExercise.Data.DataServices
         {
             PagedResult<T> pagedResult = new PagedResult<T>
             {
-                Page = query.Page,
-                PageSize = query.PageSize,
-                SortDirection = query.SortDirection
+                Query = query
             };
 
             pagedResult.Records = await DbSet
