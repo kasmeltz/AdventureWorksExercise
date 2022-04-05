@@ -1,19 +1,23 @@
 using AdventureWorksExercise.Data.DataServices;
+using AdventureWorksExercise.Data.Models;
 using AdventureWorksExercise.WebAPI.Options;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 builder.Services.AddTransient<EFProductDataServices>();
+
+builder.Services.AddDbContext<AdventureWorksDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorksDbContext")));
 
 builder.Services.AddApiVersioning(o =>
 {
@@ -39,7 +43,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.UseHttpsRedirection();
 

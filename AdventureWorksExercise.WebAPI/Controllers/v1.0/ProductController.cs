@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using AdventureWorksExercise.Data.DataServices;
-using AdventureWorksExercise.Data.Models;
+using AdventureWorksExercise.Data.Pagination;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AdventureWorksExercise.WebAPI.Controllers.V1
 {
@@ -35,9 +35,12 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
-            var items = new List<Product>();
-            
-            return Ok(items);
+            var pagedQuery = new PagedQuery();
+
+            var pagedResult = await ProductDataServices
+                .ListAsync(pagedQuery);
+
+            return Ok(pagedResult);
         }
 
         #endregion

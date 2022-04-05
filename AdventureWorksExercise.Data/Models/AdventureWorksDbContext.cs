@@ -2,13 +2,13 @@
 
 namespace AdventureWorksExercise.Data.Models
 {
-    public partial class AdventureWorks9Context : DbContext
+    public partial class AdventureWorksDbContext : DbContext
     {
-        public AdventureWorks9Context()
+        public AdventureWorksDbContext()
         {
         }
 
-        public AdventureWorks9Context(DbContextOptions<AdventureWorks9Context> options)
+        public AdventureWorksDbContext(DbContextOptions<AdventureWorksDbContext> options)
             : base(options)
         {
         }
@@ -105,15 +105,6 @@ namespace AdventureWorksExercise.Data.Models
 
         // Unable to generate entity type for table 'Production.Document' since its primary key could not be scaffolded. Please see the warning messages.
         // Unable to generate entity type for table 'Production.ProductDocument' since its primary key could not be scaffolded. Please see the warning messages.
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-2948IBL;Database=AdventureWorks_2019;Trusted_Connection=True;");
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
