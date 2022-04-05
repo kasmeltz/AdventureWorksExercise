@@ -52,23 +52,32 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                 .ListAsync(pagedQuery, q => q
                     .Select(o => new Product { ProductId = o.ProductId }));
 
-            var pagedViewModels = new PagedResult<ProductViewModel>
+            return Ok(ToViewModels<Product, ProductViewModel>(pagedResult));
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        public PagedResult<K> ToViewModels<T,K>(PagedResult<T> pagedResult)
+        {
+            var pagedViewModels = new PagedResult<K>
             {
                 Query = pagedResult.Query,
                 TotalRecordCount = pagedResult.TotalRecordCount
             };
 
-            var viewModels = new List<ProductViewModel>();
+            var viewModels = new List<K>();
 
             foreach (var record in pagedResult.Records)
             {
                 viewModels
-                    .Add(Mapper.Map<ProductViewModel>(record));
+                    .Add(Mapper.Map<K>(record));
             }
 
             pagedViewModels.Records = viewModels;
 
-            return Ok(pagedViewModels);
+            return pagedViewModels;
         }
 
         #endregion
