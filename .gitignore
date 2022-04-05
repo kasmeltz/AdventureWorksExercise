@@ -5,3 +5,5 @@
 /.vs
 /AdventureWorksExercise.Data/obj
 /AdventureWorksExercise.Data/bin/Debug/net6.0
+/AdventureWorksExercise.WebAPI/bin/Debug/net6.0
+/AdventureWorksExercise.WebAPI/obj
