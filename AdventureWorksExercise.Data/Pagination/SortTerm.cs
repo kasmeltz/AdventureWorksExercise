@@ -2,8 +2,8 @@
 {
     public class SortTerm
     {
-        public string Name { get; set; }
+        public string? Key { get; set; }
 
-        public SortDirection SortDirection { get; set; }
+        public SortDirection Direction { get; set; }
     }
 }

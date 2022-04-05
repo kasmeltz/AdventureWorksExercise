@@ -2,6 +2,7 @@
 using AdventureWorksExercise.Data.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq.Dynamic.Core;
 
 namespace AdventureWorksExercise.Data.DataServices
 {
@@ -39,12 +40,9 @@ namespace AdventureWorksExercise.Data.DataServices
 
         #region IGenericDataServices 
 
-        public async Task<PagedResult<T>> ListAsync(PagedQuery pagedQuery, Func<IQueryable<T>, IQueryable<T>>? queryOperations = null)
+        public async Task<PaginatedResult<T>> ListAsync(PaginatedQuery pagedQuery, Func<IQueryable<T>, IQueryable<T>>? queryOperations = null)
         {
-            PagedResult<T> pagedResult = new PagedResult<T>
-            {
-                Query = pagedQuery
-            };
+            PaginatedResult<T> pagedResult = new PaginatedResult<T>(pagedQuery);
 
             var query = DbSet
                 .AsQueryable();
@@ -54,10 +52,23 @@ namespace AdventureWorksExercise.Data.DataServices
                 query = queryOperations(query);
             }
 
-            if (pagedQuery.SortTerms == null || 
-                !pagedQuery.SortTerms.Any())
+            var searchString = pagedQuery.SearchString;
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query
+                    .Where(searchString, pagedQuery.SearchValues
+                        .ToArray());
+            }
+
+            var sortString = pagedQuery.SortString;
+            if (string.IsNullOrEmpty(sortString))
             {
                 query = DefaultSort(query);
+            }
+            else
+            {
+                query = query
+                    .OrderBy(sortString);
             }
 
             int totalRecordCount = await query
@@ -74,8 +85,21 @@ namespace AdventureWorksExercise.Data.DataServices
             pagedResult.Records = await query
                 .ToListAsync();
 
+            if (pagedQuery.Page >= pagedResult.PageCount)
+            {
+                pagedResult.Page = pagedResult.PageCount;
+            }
+            else
+            {
+                pagedResult.Page = pagedQuery.Page;
+            }
+
             return pagedResult;
         }
+
+        #endregion
+
+        #region Helper Methods
 
         #endregion
     }

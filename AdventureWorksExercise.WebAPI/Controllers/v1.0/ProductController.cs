@@ -42,15 +42,21 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
-            var pagedQuery = new PagedQuery
+            var pagedQuery = new PaginatedQuery
             {
                 Page = 1,
                 PageSize = 10
             };
 
+            pagedQuery
+                .AddSortTerm("Name", SortDirection.Descending);
+
+            pagedQuery
+                .StartsWith("Name", "Classic");
+
             var pagedResult = await ProductDataServices
                 .ListAsync(pagedQuery, q => q
-                    .Select(o => new Product { ProductId = o.ProductId }));
+                    .Select(o => new Product { ProductId = o.ProductId, Name = o.Name }));
 
             return Ok(ToViewModels<Product, ProductViewModel>(pagedResult));
         }
@@ -59,20 +65,23 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         #region Helper Methods
 
-        public PagedResult<K> ToViewModels<T,K>(PagedResult<T> pagedResult)
+        public PaginatedResult<K> ToViewModels<T,K>(PaginatedResult<T> pagedResult)
         {
-            var pagedViewModels = new PagedResult<K>
+            var pagedViewModels = new PaginatedResult<K>(pagedResult.Query)
             {
-                Query = pagedResult.Query,
                 TotalRecordCount = pagedResult.TotalRecordCount
             };
 
             var viewModels = new List<K>();
 
-            foreach (var record in pagedResult.Records)
+            if (pagedResult.Records != null &&
+                pagedResult.Records.Any())
             {
-                viewModels
-                    .Add(Mapper.Map<K>(record));
+                foreach (var record in pagedResult.Records)
+                {
+                    viewModels
+                        .Add(Mapper.Map<K>(record));
+                }
             }
 
             pagedViewModels.Records = viewModels;
