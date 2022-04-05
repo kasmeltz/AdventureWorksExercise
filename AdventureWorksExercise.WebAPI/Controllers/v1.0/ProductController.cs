@@ -56,22 +56,16 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         [MapToApiVersion("1.0")]
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts(
+            [FromQuery]int? page, 
+            [FromQuery]int? pageSize, 
+            [FromQuery]string? sort, 
+            [FromQuery]string? search)
         {
-            var pagedQuery = new PaginatedQuery
-            {
-                Page = 1,
-                PageSize = 10
-            };
-
-            pagedQuery
-                .AddSortTerm("Name", SortDirection.Descending);
-
-            pagedQuery
-                .StartsWith("Name", "Classic");
+            var paginatedQery = PaginatedQueryFromRequestQuery(page, pageSize, sort, search);
 
             var pagedResult = await ProductDataServices
-                .ListAsync(pagedQuery, q => q
+                .ListAsync(paginatedQery, q => q
                     .Include(o => o.ProductProductPhotos)
                         .ThenInclude(o => o.ProductPhoto)
                     .Include(o => o.ProductSubcategory)
