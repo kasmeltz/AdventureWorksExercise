@@ -12,9 +12,11 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         #region Constructors
 
         public ApiControllerBase(
+            IConfiguration configuration,
             IMapper mapper,
             ILogger logger)
         {
+            Configuration = configuration;
             Logger = logger;
             Mapper = mapper;
         }
@@ -22,6 +24,8 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         #endregion
 
         #region Members
+
+        protected IConfiguration Configuration { get; set; }
 
         protected IMapper Mapper { get; set; }
 
@@ -40,22 +44,31 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
             if (filter.Offset < 0)
             {
-                filter.Offset = 0;
+                throw new ArgumentException("Offset can not be less than 0");
             }
+
+            var queryDefaults = Configuration
+                .GetSection("QueryDefaults");
+
+            int defaultLimit = queryDefaults
+                .GetValue<int>("DefaultLimit");
+
+            int maxLimit = queryDefaults
+                .GetValue<int>("MaxLimit");
 
             if (!filter.Limit.HasValue)
             {
-                filter.Limit = 10;
+                filter.Limit = defaultLimit;
             }
 
             if (filter.Limit < 0)
             {
-                filter.Limit = 10;
+                throw new ArgumentException("Limit can not be less than 0");
             }
 
-            if (filter.Limit > 100)
+            if (filter.Limit > maxLimit)
             {
-                filter.Limit = 100;
+                throw new ArgumentException($"Limit can not be greater than {maxLimit}");
             }
 
             var paginatedQuery = new PaginatedQuery

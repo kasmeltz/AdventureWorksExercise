@@ -16,10 +16,11 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         #region Constructors
 
         public ProductsController(
+            IConfiguration configuration,
             IMapper mapper,
             ILogger<ProductsController> logger,
             EFProductDataServices productDataServices) : 
-            base(mapper, logger)
+            base(configuration, mapper, logger)
         {
             ProductDataServices = productDataServices;
         }
