@@ -5,6 +5,12 @@ using System.Reflection;
 
 namespace AdventureWorksExercise.WebAPI.JSON
 {
+    /// <summary>
+    /// Decides whether to serialize a field based on the field's name, declarting type, and a list of selected fields.
+    /// The list of selected fields is taken from a PaginatedFilter.
+    /// If the list of selected fields is empty then all fields are serialized.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class SelectedFieldContractResolver<T> : DefaultContractResolver where T : class
     {
         #region Constructors
