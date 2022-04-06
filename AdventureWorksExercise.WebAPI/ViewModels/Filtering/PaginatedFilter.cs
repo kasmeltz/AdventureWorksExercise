@@ -2,6 +2,9 @@
 
 namespace AdventureWorksExercise.WebAPI.ViewModels.Filtering
 {
+    /// <summary>
+    /// Represents the input to an API request that describes how to filter the results.
+    /// </summary>
     public abstract class PaginatedFilter
     {
         #region Members
@@ -9,6 +12,8 @@ namespace AdventureWorksExercise.WebAPI.ViewModels.Filtering
         public int? Offset { get; set; }
 
         public int? Limit { get; set; }
+
+        public string? Fields { get; set; }
 
         public string? SortBy { get; set; }
 
@@ -20,14 +25,120 @@ namespace AdventureWorksExercise.WebAPI.ViewModels.Filtering
 
         #region Public Methods
 
-        public string TranslateFieldToModel(string fieldName)
+        /// <summary>
+        /// Translates this PaginatedFilter into a PaginatedQuery that can be used with the DataServices layer.
+        /// </summary>
+        /// <returns>A PaginatedQuery with the information contained in the PaginatedFilter</returns>
+        /// <exception cref="ArgumentException">Thrown if any of the filter parameters are invalid.</exception>
+        public PaginatedQuery ToPaginatedQuery(int defaultLimit, int maxLimit)
+        {
+            if (Offset < 0)
+            {
+                throw new ArgumentException("Offset can not be less than 0");
+            }
+
+            if (Limit < 0)
+            {
+                throw new ArgumentException("Limit can not be less than 0");
+            }
+
+            if (Limit > maxLimit)
+            {
+                throw new ArgumentException($"Limit can not be greater than {maxLimit}");
+            }
+
+            int offset = 0;
+            int limit = 0;
+
+            if (Limit.HasValue)
+            {
+                limit = Limit.Value;
+            }
+            else
+            {
+                limit = defaultLimit;
+            }
+
+            if (Offset.HasValue)
+            {
+                offset = Offset.Value;
+            }
+
+            var paginatedQuery = new PaginatedQuery
+            {
+                Offset = offset,
+                Limit = limit
+            };
+
+            string? fields = Fields?.ToLower();
+            if (!string.IsNullOrEmpty(fields))
+            {
+                string[] fieldTokens = fields.Split(',');
+                foreach (var fieldToken in fieldTokens)
+                {
+                    paginatedQuery
+                        .SelectedFields
+                        .Add(TranslateFieldToModel(fieldToken));
+                }
+            }
+
+            string? sortBy = SortBy?.ToLower();
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                string[] sortTerms = sortBy
+                    .Split(',');
+
+                if (sortTerms
+                    .Any())
+                {
+                    foreach (var sortTerm in sortTerms)
+                    {
+                        var plusOrMins = sortTerm.Substring(0, 1);
+
+                        if (plusOrMins != "-" &&
+                            plusOrMins != "+")
+                        {
+                            throw new ArgumentException("Sort terms must start with + (ascending) or - (descending)");
+                        }
+
+                        var sortDirection = SortDirection.Ascending;
+
+                        if (sortTerm
+                            .StartsWith('-'))
+                        {
+                            sortDirection = SortDirection.Descending;
+                        }
+
+                        var cleanedSortTerm = sortTerm
+                            .Substring(1, sortTerm.Length - 1);
+
+                        cleanedSortTerm = TranslateFieldToModel(cleanedSortTerm);
+
+                        paginatedQuery
+                            .AddSortTerm(cleanedSortTerm, sortDirection);
+                    }
+                }
+            }
+
+            return paginatedQuery;
+        }
+
+        #endregion
+
+        #region Protected Methods
+        
+        protected string TranslateFieldToModel(string fieldName)
         {
             if (string.IsNullOrEmpty(fieldName))
             {
                 return string.Empty;
             }
 
-            if (!ModelFieldTranslations.ContainsKey(fieldName))
+            fieldName = fieldName
+                .ToLower();
+
+            if (!ModelFieldTranslations
+                .ContainsKey(fieldName))
             {
                 return fieldName;
             }
@@ -35,12 +146,6 @@ namespace AdventureWorksExercise.WebAPI.ViewModels.Filtering
             return ModelFieldTranslations[fieldName]
                 .ToLower();
         }
-
-        #endregion
-
-        #region Protected Methods
-
-        
 
         protected void SetPaginatedQueryTerm(PaginatedQuery paginatedQuery, string termAccessor, string? value)
         {

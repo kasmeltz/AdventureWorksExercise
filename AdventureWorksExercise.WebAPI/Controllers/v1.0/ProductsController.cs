@@ -74,10 +74,22 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         {
             try
             {
-                var paginatedQuery = PaginatedQueryFromRequestQuery(productFilter);
+                var queryDefaults = Configuration
+                    .GetSection("QueryDefaults");
 
+                int defaultLimit = queryDefaults
+                    .GetValue<int>("DefaultLimit");
+
+                int maxLimit = queryDefaults
+                    .GetValue<int>("MaxLimit");
+
+                var paginatedQuery = productFilter
+                    .ToPaginatedQuery(defaultLimit, maxLimit);
+
+                /*
                 productFilter
                     .PopulatePaginatedQuery(paginatedQuery);
+                */
 
                 var pagedResult = await ProductDataServices
                     .ListAsync(paginatedQuery, q => q

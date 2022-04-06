@@ -2,6 +2,9 @@
 
 namespace AdventureWorksExercise.WebAPI.ViewModels.Filtering
 {
+    /// <summary>
+    /// Represents the input to a Product API request that describes how to filter the results.
+    /// </summary>
     public class ProductFilter : PaginatedFilter
     {
         #region Members

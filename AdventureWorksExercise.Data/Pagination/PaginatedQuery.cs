@@ -8,6 +8,7 @@ namespace AdventureWorksExercise.Data.Pagination
 
         public PaginatedQuery()
         {
+            SelectedFields = new List<string>();
             SortTerms = new List<SortTerm>();
             SearchValues = new List<object>();
             SortStringBuilder = new StringBuilder();
@@ -21,6 +22,8 @@ namespace AdventureWorksExercise.Data.Pagination
         public int Offset { get; set; }
 
         public int Limit { get; set; }
+
+        public List<string> SelectedFields { get; set; }
 
         protected List<SortTerm> SortTerms { get; set; }
 

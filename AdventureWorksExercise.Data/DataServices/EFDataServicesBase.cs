@@ -108,6 +108,15 @@ namespace AdventureWorksExercise.Data.DataServices
                 .Skip(offset)
                 .Take(limit);
 
+            if (pagedQuery.SelectedFields.Any())
+            {
+                var selectedFields = string
+                    .Join(',', pagedQuery.SelectedFields);
+
+                query = query
+                    .Select<T>($"new ({selectedFields})");
+            }
+
             pagedResult.Records = await query
                 .ToListAsync();
 
