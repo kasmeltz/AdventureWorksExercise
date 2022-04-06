@@ -72,6 +72,14 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                 {
                     foreach (var sortTerm in sortTerms)
                     {
+                        var plusOrMins = sortTerm.Substring(0, 1);
+
+                        if (plusOrMins != "-" &&
+                            plusOrMins != "+")
+                        {
+                            throw new ArgumentException("Sort terms must start with + (ascending) or - (descending)");
+                        }
+
                         var sortDirection = SortDirection.Ascending;
 
                         if (sortTerm

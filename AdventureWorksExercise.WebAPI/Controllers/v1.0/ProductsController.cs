@@ -62,16 +62,23 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
             [FromQuery]string? sort, 
             [FromQuery]string? search)
         {
-            var paginatedQery = PaginatedQueryFromRequestQuery(offset, limit, sort, search);
+            try
+            {
+                var paginatedQery = PaginatedQueryFromRequestQuery(offset, limit, sort, search);
 
-            var pagedResult = await ProductDataServices
-                .ListAsync(paginatedQery, q => q
-                    .Include(o => o.ProductProductPhotos)
-                        .ThenInclude(o => o.ProductPhoto)
-                    .Include(o => o.ProductSubcategory)
-                        .ThenInclude(o => o!.ProductCategory));
+                var pagedResult = await ProductDataServices
+                    .ListAsync(paginatedQery, q => q
+                        .Include(o => o.ProductProductPhotos)
+                            .ThenInclude(o => o.ProductPhoto)
+                        .Include(o => o.ProductSubcategory)
+                            .ThenInclude(o => o!.ProductCategory));
 
-            return Ok(ToViewModels<Product, ProductViewModel>(pagedResult));
+                return Ok(ToViewModels<Product, ProductViewModel>(pagedResult));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         #endregion
