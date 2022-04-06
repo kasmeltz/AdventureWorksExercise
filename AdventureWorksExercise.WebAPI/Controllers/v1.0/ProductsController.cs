@@ -33,6 +33,21 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         protected EFProductDataServices ProductDataServices { get; set; }
 
+        protected Func<IQueryable<Product>, IQueryable<Product>> DefaultIncludes = q => q
+            .Include(o => o.ProductProductPhotos)
+                .ThenInclude(o => o.ProductPhoto)
+            .Include(o => o.ProductSubcategory)
+                .ThenInclude(o => o!.ProductCategory)
+            .Include(o => o.ProductModel)
+                .ThenInclude(o => o!.ProductModelProductDescriptionCultures)
+                    .ThenInclude(o => o.Culture)
+            .Include(o => o.ProductModel)
+                    .ThenInclude(o => o!.ProductModelProductDescriptionCultures)
+                        .ThenInclude(o => o.ProductDescription)
+            .Include(o => o.ProductModel)
+                .ThenInclude(o => o!.ProductModelIllustrations)
+                    .ThenInclude(o => o.Illustration);
+
         #endregion
 
         #region Routes
@@ -47,11 +62,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
             try
             {
                 var product = await ProductDataServices
-                    .GetById(id, q => q
-                        .Include(o => o.ProductProductPhotos)
-                            .ThenInclude(o => o.ProductPhoto)
-                        .Include(o => o.ProductSubcategory)
-                            .ThenInclude(o => o!.ProductCategory));
+                    .GetById(id, DefaultIncludes);
 
                 if (product == null)
                 {
@@ -89,11 +100,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                     .ToPaginatedQuery(defaultLimit, maxLimit);
 
                 var pagedResult = await ProductDataServices
-                    .ListAsync(paginatedQuery, q => q
-                        .Include(o => o.ProductProductPhotos)
-                            .ThenInclude(o => o.ProductPhoto)
-                        .Include(o => o.ProductSubcategory)
-                            .ThenInclude(o => o!.ProductCategory));
+                    .ListAsync(paginatedQuery, DefaultIncludes);
 
                 return new JsonResult(ToViewModels<Product, ProductViewModel>(pagedResult),
                     new JsonSerializerSettings

@@ -25,7 +25,8 @@ namespace AdventureWorksExercise.WebAPI.ViewModels.Filtering
         {
             ["subcategory"] = "productsubcategory.name",
             ["category"] = "productsubcategory.productcategory.name",
-            ["photos"] = "productproductphotos"
+            ["photos"] = "productproductphotos",
+            ["model"] = "productmodel"
         };
 
         protected override Dictionary<string, string> ModelFieldTranslations => _modelFieldTranslations;

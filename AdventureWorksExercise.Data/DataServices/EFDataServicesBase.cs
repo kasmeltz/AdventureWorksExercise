@@ -92,7 +92,7 @@ namespace AdventureWorksExercise.Data.DataServices
                 }
                 catch
                 {
-                    throw new ArgumentException($"{sortString} is not a sortable field");
+                    throw new ArgumentException($"{sortString} is not a valid sort list");
                 }
             }
 
@@ -113,8 +113,15 @@ namespace AdventureWorksExercise.Data.DataServices
                 var selectedFields = string
                     .Join(',', pagedQuery.SelectedFields);
 
-                query = query
-                    .Select<T>($"new ({selectedFields})");
+                try
+                {
+                    query = query
+                        .Select<T>($"new ({selectedFields})");
+                }
+                catch
+                {
+                    throw new ArgumentException($"{selectedFields} is not a valid field select list");
+                }
             }
 
             pagedResult.Records = await query

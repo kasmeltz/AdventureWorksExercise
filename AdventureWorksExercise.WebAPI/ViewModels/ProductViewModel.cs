@@ -56,6 +56,8 @@
 
         public List<ProductPhotoViewModel>? Photos { get; set; }
 
+        public ProductModelViewModel? Model { get; set; }
+
         #endregion
     }
 }
