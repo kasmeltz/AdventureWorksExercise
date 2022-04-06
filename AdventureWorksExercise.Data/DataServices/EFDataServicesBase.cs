@@ -85,8 +85,15 @@ namespace AdventureWorksExercise.Data.DataServices
             }
             else
             {
-                query = query
-                    .OrderBy(sortString);
+                try
+                {
+                    query = query
+                        .OrderBy(sortString);
+                }
+                catch
+                {
+                    throw new ArgumentException($"{sortString} is not a sortable field");
+                }
             }
 
             int totalRecordCount = await query

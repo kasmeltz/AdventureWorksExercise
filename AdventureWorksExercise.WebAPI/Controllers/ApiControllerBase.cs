@@ -35,7 +35,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         #region Helper Methods
 
-        protected PaginatedQuery PaginatedQueryFromRequestQuery(PaginatedFilter filter, params string[] filterAndSortTranslations)
+        protected PaginatedQuery PaginatedQueryFromRequestQuery(PaginatedFilter filter)
         {
             if (!filter.Offset.HasValue)
             {
@@ -71,36 +71,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                 throw new ArgumentException($"Limit can not be greater than {maxLimit}");
             }
 
-            string? search = filter.Search?.ToLower();
             string? sortBy = filter.SortBy?.ToLower();
-            if (filterAndSortTranslations != null && 
-                filterAndSortTranslations.Any())
-            {
-                foreach(var translation in filterAndSortTranslations)
-                {
-                    string[] tokens = translation
-                        .Split(':');
-
-                    if (tokens.Length != 2)
-                    {
-                        continue;
-                    }
-
-                    var from = tokens[0].ToLower();
-                    var to = tokens[1].ToLower();
-                    if (!string.IsNullOrEmpty(search))
-                    {
-                        search = search
-                            .Replace(from, to);
-                    }
-
-                    if (!string.IsNullOrEmpty(sortBy))
-                    {
-                        sortBy = sortBy
-                            .Replace(from, to);
-                    }
-                }
-            }
 
             var paginatedQuery = new PaginatedQuery
             {
@@ -135,7 +106,11 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                         }
 
                         var cleanedSortTerm = sortTerm
-                            .Substring(1, sortTerm.Length - 1);
+                            .Substring(1, sortTerm.Length - 1)
+                            .ToLower();
+
+                        cleanedSortTerm = filter
+                            .TranslateFieldToModel(cleanedSortTerm);
 
                         paginatedQuery
                             .AddSortTerm(cleanedSortTerm, sortDirection);

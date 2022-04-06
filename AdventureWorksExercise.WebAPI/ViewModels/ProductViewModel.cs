@@ -2,19 +2,6 @@
 {
     public class ProductViewModel
     {
-        #region FilterTranslations
-
-        public static string[] FilterTranslations = new string[]
-        {
-            "Subcategory:ProductSubcategory.Name",
-            "Category:ProductSubcategory.ProductCategory.Name",
-            "Photos.IsPrimary:ProductProductPhotos.Primary",
-            "Photos.ThumbnailPhotoFileName:ProductProductPhotos.ProductPhoto.ThumbnailPhotoFileName",
-            "Photos.LargePhotoFileName:ProductProductPhotos.ProductPhoto.LargePhotoFileName",
-        };
-
-        #endregion
-
         #region Members
 
         public int ProductId { get; set; }
