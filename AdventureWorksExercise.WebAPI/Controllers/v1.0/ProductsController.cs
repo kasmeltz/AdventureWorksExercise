@@ -73,10 +73,16 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         {
             try
             {
-                var paginatedQery = PaginatedQueryFromRequestQuery(productFilter);
+                var paginatedQuery = PaginatedQueryFromRequestQuery(productFilter);
+
+                if (!string.IsNullOrEmpty(productFilter.Name))
+                {
+                    paginatedQuery
+                        .Contains("Name", productFilter.Name);
+                }
 
                 var pagedResult = await ProductDataServices
-                    .ListAsync(paginatedQery, q => q
+                    .ListAsync(paginatedQuery, q => q
                         .Include(o => o.ProductProductPhotos)
                             .ThenInclude(o => o.ProductPhoto)
                         .Include(o => o.ProductSubcategory)
