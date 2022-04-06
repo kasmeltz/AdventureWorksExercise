@@ -1,10 +1,12 @@
 using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
+using AdventureWorksExercise.WebAPI.JSON;
 using AdventureWorksExercise.WebAPI.ViewModels;
 using AdventureWorksExercise.WebAPI.ViewModels.Filtering;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace AdventureWorksExercise.WebAPI.Controllers.V1
 {
@@ -86,11 +88,6 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                 var paginatedQuery = productFilter
                     .ToPaginatedQuery(defaultLimit, maxLimit);
 
-                /*
-                productFilter
-                    .PopulatePaginatedQuery(paginatedQuery);
-                */
-
                 var pagedResult = await ProductDataServices
                     .ListAsync(paginatedQuery, q => q
                         .Include(o => o.ProductProductPhotos)
@@ -98,7 +95,11 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                         .Include(o => o.ProductSubcategory)
                             .ThenInclude(o => o!.ProductCategory));
 
-                return Ok(ToViewModels<Product, ProductViewModel>(pagedResult));
+                return new JsonResult(ToViewModels<Product, ProductViewModel>(pagedResult),
+                    new JsonSerializerSettings
+                    {
+                        ContractResolver = new SelectedFieldContractResolver<ProductViewModel>(productFilter)
+                    });
             }
             catch (ArgumentException ex)
             {
