@@ -94,23 +94,15 @@ namespace AdventureWorksExercise.Data.DataServices
 
             pagedResult.TotalRecordCount = totalRecordCount;
 
-            int offset = (pagedQuery.Page - 1) * pagedQuery.PageSize;
+            int offset = pagedQuery.Offset;
+            int limit = pagedQuery.Limit;
 
             query = query
                 .Skip(offset)
-                .Take(pagedQuery.PageSize);
+                .Take(limit);
 
             pagedResult.Records = await query
                 .ToListAsync();
-
-            if (pagedQuery.Page >= pagedResult.PageCount)
-            {
-                pagedResult.Page = pagedResult.PageCount;
-            }
-            else
-            {
-                pagedResult.Page = pagedQuery.Page;
-            }
 
             return pagedResult;
         }

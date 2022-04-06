@@ -18,9 +18,9 @@ namespace AdventureWorksExercise.Data.Pagination
 
         #region Members
 
-        public int PageSize { get; set; }
+        public int Offset { get; set; }
 
-        public int Page { get; set; }
+        public int Limit { get; set; }
 
         protected List<SortTerm> SortTerms { get; set; }
 

@@ -11,13 +11,13 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    public class ProductController : ApiControllerBase
+    public class ProductsController : ApiControllerBase
     {
         #region Constructors
 
-        public ProductController(
+        public ProductsController(
             IMapper mapper,
-            ILogger<ProductController> logger,
+            ILogger<ProductsController> logger,
             EFProductDataServices productDataServices) : 
             base(mapper, logger)
         {
@@ -57,12 +57,12 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         [MapToApiVersion("1.0")]
         [HttpGet]
         public async Task<IActionResult> GetProducts(
-            [FromQuery]int? page, 
-            [FromQuery]int? pageSize, 
+            [FromQuery]int? offset, 
+            [FromQuery]int? limit, 
             [FromQuery]string? sort, 
             [FromQuery]string? search)
         {
-            var paginatedQery = PaginatedQueryFromRequestQuery(page, pageSize, sort, search);
+            var paginatedQery = PaginatedQueryFromRequestQuery(offset, limit, sort, search);
 
             var pagedResult = await ProductDataServices
                 .ListAsync(paginatedQery, q => q

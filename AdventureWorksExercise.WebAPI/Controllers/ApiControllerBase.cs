@@ -29,37 +29,37 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         #region Helper Methods
 
-        protected PaginatedQuery PaginatedQueryFromRequestQuery(int? page, int? pageSize, string? sortBy, string? search)
+        protected PaginatedQuery PaginatedQueryFromRequestQuery(int? offset, int? limit, string? sortBy, string? search)
         {
-            if (!page.HasValue)
+            if (!offset.HasValue)
             {
-                page = 1;
+                offset = 0;
             }
 
-            if (page < 0)
+            if (offset < 0)
             {
-                page = 1;
+                offset = 0;
             }
 
-            if (!pageSize.HasValue)
+            if (!limit.HasValue)
             {
-                pageSize = 10;
+                limit = 10;
             }
 
-            if (pageSize < 0)
+            if (limit < 0)
             {
-                pageSize = 10;
+                limit = 10;
             }
 
-            if (pageSize > 100)
+            if (limit > 100)
             {
-                pageSize = 100;
+                limit = 100;
             }
 
             var paginatedQuery = new PaginatedQuery
             {
-                Page = page.Value,
-                PageSize = pageSize.Value
+                Offset = offset.Value,
+                Limit = limit.Value
             };
 
             if (!string.IsNullOrEmpty(sortBy)) 
@@ -75,19 +75,13 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                         var sortDirection = SortDirection.Ascending;
 
                         if (sortTerm
-                            .ToLower()
-                            .Contains("desc"))
+                            .StartsWith('-'))
                         {
                             sortDirection = SortDirection.Descending;
                         }
 
                         var cleanedSortTerm = sortTerm
-                            .ToLower()
-                            .Replace("ascending", "")
-                            .Replace("asc", "")
-                            .Replace("descending", "")
-                            .Replace("desc", "")
-                            .Trim();
+                            .Substring(1, sortTerm.Length - 1);
 
                         paginatedQuery
                             .AddSortTerm(cleanedSortTerm, sortDirection);
@@ -102,7 +96,6 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         {
             var pagedViewModels = new PaginatedResult<K>(pagedResult.Query)
             {
-                Page = pagedResult.Page,
                 TotalRecordCount = pagedResult.TotalRecordCount
             };
 
