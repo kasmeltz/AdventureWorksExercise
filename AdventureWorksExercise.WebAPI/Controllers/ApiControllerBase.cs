@@ -71,8 +71,8 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                 throw new ArgumentException($"Limit can not be greater than {maxLimit}");
             }
 
-            string? search = filter.Search;
-            string? sortBy = filter.SortBy;
+            string? search = filter.Search?.ToLower();
+            string? sortBy = filter.SortBy?.ToLower();
             if (filterAndSortTranslations != null && 
                 filterAndSortTranslations.Any())
             {
@@ -86,16 +86,18 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                         continue;
                     }
 
+                    var from = tokens[0].ToLower();
+                    var to = tokens[1].ToLower();
                     if (!string.IsNullOrEmpty(search))
                     {
                         search = search
-                            .Replace(tokens[0], tokens[1]);
+                            .Replace(from, to);
                     }
 
                     if (!string.IsNullOrEmpty(sortBy))
                     {
                         sortBy = sortBy
-                            .Replace(tokens[0], tokens[1]);
+                            .Replace(from, to);
                     }
                 }
             }

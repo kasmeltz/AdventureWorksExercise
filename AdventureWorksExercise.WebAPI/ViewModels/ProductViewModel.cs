@@ -7,7 +7,7 @@
         public static string[] FilterTranslations = new string[]
         {
             "Subcategory:ProductSubcategory.Name",
-            "Category:ProductSubcategory.Category.Name",
+            "Category:ProductSubcategory.ProductCategory.Name",
             "Photos.IsPrimary:ProductProductPhotos.Primary",
             "Photos.ThumbnailPhotoFileName:ProductProductPhotos.ProductPhoto.ThumbnailPhotoFileName",
             "Photos.LargePhotoFileName:ProductProductPhotos.ProductPhoto.LargePhotoFileName",
