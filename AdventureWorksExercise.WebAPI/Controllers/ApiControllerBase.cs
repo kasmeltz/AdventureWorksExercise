@@ -1,4 +1,6 @@
 using AdventureWorksExercise.Data.Pagination;
+using AdventureWorksExercise.WebAPI.ViewModels;
+using AdventureWorksExercise.WebAPI.ViewModels.Filtering;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,42 +31,42 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         #region Helper Methods
 
-        protected PaginatedQuery PaginatedQueryFromRequestQuery(int? offset, int? limit, string? sortBy, string? search)
+        protected PaginatedQuery PaginatedQueryFromRequestQuery(PaginatedFilter filter)
         {
-            if (!offset.HasValue)
+            if (!filter.Offset.HasValue)
             {
-                offset = 0;
+                filter.Offset = 0;
             }
 
-            if (offset < 0)
+            if (filter.Offset < 0)
             {
-                offset = 0;
+                filter.Offset = 0;
             }
 
-            if (!limit.HasValue)
+            if (!filter.Limit.HasValue)
             {
-                limit = 10;
+                filter.Limit = 10;
             }
 
-            if (limit < 0)
+            if (filter.Limit < 0)
             {
-                limit = 10;
+                filter.Limit = 10;
             }
 
-            if (limit > 100)
+            if (filter.Limit > 100)
             {
-                limit = 100;
+                filter.Limit = 100;
             }
 
             var paginatedQuery = new PaginatedQuery
             {
-                Offset = offset.Value,
-                Limit = limit.Value
+                Offset = filter.Offset.Value,
+                Limit = filter.Limit.Value
             };
 
-            if (!string.IsNullOrEmpty(sortBy)) 
+            if (!string.IsNullOrEmpty(filter.SortBy))
             {
-                string[] sortTerms = sortBy
+                string[] sortTerms = filter.SortBy
                     .Split(',');
 
                 if (sortTerms
@@ -100,7 +102,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
             return paginatedQuery;
         }
 
-        protected PaginatedResult<K> ToViewModels<T,K>(PaginatedResult<T> pagedResult)
+        protected PaginatedResult<K> ToViewModels<T, K>(PaginatedResult<T> pagedResult)
         {
             var pagedViewModels = new PaginatedResult<K>(pagedResult.Query)
             {
@@ -122,6 +124,30 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
             pagedViewModels.Records = viewModels;
 
             return pagedViewModels;
+        }
+
+        protected IActionResult HandleBadArguments(ArgumentException ex)
+        {
+            var errorViewModel = new ErrorViewModel
+            {
+                Message = ex.Message
+            };
+
+            return BadRequest(new { errors = new List<ErrorViewModel> { errorViewModel } });
+        }
+
+        protected IActionResult HandleException(Exception ex)
+        {
+            var errorViewModel = new ErrorViewModel
+            {
+                Message = ex.Message,
+                ErrorId = Guid.NewGuid()
+            };
+
+            Logger
+                .LogError(ex, ex.Message, errorViewModel);
+
+            return Problem("An unexpected error occured", errorViewModel.ErrorId.ToString(), 500, "An unexpected error occured" );
         }
 
         #endregion

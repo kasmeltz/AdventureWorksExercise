@@ -1,7 +1,7 @@
 using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
-using AdventureWorksExercise.Data.Pagination;
 using AdventureWorksExercise.WebAPI.ViewModels;
+using AdventureWorksExercise.WebAPI.ViewModels.Filtering;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,35 +36,44 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         [MapToApiVersion("1.0")]
         [HttpGet("{id:int}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetProductById(int id)
         {
-            var product = await ProductDataServices
-                .GetById(id, q => q
-                    .Include(o => o.ProductProductPhotos)
-                        .ThenInclude(o => o.ProductPhoto)
-                    .Include(o => o.ProductSubcategory)
-                        .ThenInclude(o => o!.ProductCategory));
-
-            if (product == null)
+            try
             {
-                return NotFound();
-            }
+                var product = await ProductDataServices
+                    .GetById(id, q => q
+                        .Include(o => o.ProductProductPhotos)
+                            .ThenInclude(o => o.ProductPhoto)
+                        .Include(o => o.ProductSubcategory)
+                            .ThenInclude(o => o!.ProductCategory));
 
-            return Ok(Mapper
-                .Map<ProductViewModel>(product));
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(Mapper
+                    .Map<ProductViewModel>(product));
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex);
+            }
         }
 
         [MapToApiVersion("1.0")]
         [HttpGet]
-        public async Task<IActionResult> GetProducts(
-            [FromQuery]int? offset, 
-            [FromQuery]int? limit, 
-            [FromQuery]string? sort, 
-            [FromQuery]string? search)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetProducts([FromQuery] ProductFilter productFilter)
         {
             try
             {
-                var paginatedQery = PaginatedQueryFromRequestQuery(offset, limit, sort, search);
+                var paginatedQery = PaginatedQueryFromRequestQuery(productFilter);
 
                 var pagedResult = await ProductDataServices
                     .ListAsync(paginatedQery, q => q
@@ -77,7 +86,11 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return HandleBadArguments(ex);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex);
             }
         }
 
