@@ -74,7 +74,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         {
             try
             {
-                var paginatedQuery = PaginatedQueryFromRequestQuery(productFilter);
+                var paginatedQuery = PaginatedQueryFromRequestQuery(productFilter, ProductViewModel.FilterTranslations);
 
                 if (!string.IsNullOrEmpty(productFilter.Name))
                 {

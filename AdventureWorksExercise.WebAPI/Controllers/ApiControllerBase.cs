@@ -35,7 +35,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         #region Helper Methods
 
-        protected PaginatedQuery PaginatedQueryFromRequestQuery(PaginatedFilter filter)
+        protected PaginatedQuery PaginatedQueryFromRequestQuery(PaginatedFilter filter, params string[] filterAndSortTranslations)
         {
             if (!filter.Offset.HasValue)
             {
@@ -71,15 +71,44 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                 throw new ArgumentException($"Limit can not be greater than {maxLimit}");
             }
 
+            string? search = filter.Search;
+            string? sortBy = filter.SortBy;
+            if (filterAndSortTranslations != null && 
+                filterAndSortTranslations.Any())
+            {
+                foreach(var translation in filterAndSortTranslations)
+                {
+                    string[] tokens = translation
+                        .Split(':');
+
+                    if (tokens.Length != 2)
+                    {
+                        continue;
+                    }
+
+                    if (!string.IsNullOrEmpty(search))
+                    {
+                        search = search
+                            .Replace(tokens[0], tokens[1]);
+                    }
+
+                    if (!string.IsNullOrEmpty(sortBy))
+                    {
+                        sortBy = sortBy
+                            .Replace(tokens[0], tokens[1]);
+                    }
+                }
+            }
+
             var paginatedQuery = new PaginatedQuery
             {
                 Offset = filter.Offset.Value,
                 Limit = filter.Limit.Value
             };
 
-            if (!string.IsNullOrEmpty(filter.SortBy))
+            if (!string.IsNullOrEmpty(sortBy))
             {
-                string[] sortTerms = filter.SortBy
+                string[] sortTerms = sortBy
                     .Split(',');
 
                 if (sortTerms
