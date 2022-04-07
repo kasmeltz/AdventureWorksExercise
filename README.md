@@ -17,4 +17,5 @@ https://localhost:7194/api/v1/products?$filter=productModel/catalogDescription%2
 
 
 OData query information:
+
 https://docs.microsoft.com/en-us/odata/concepts/queryoptions-overview
