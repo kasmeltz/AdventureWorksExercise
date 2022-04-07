@@ -1,12 +1,8 @@
 using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
-using AdventureWorksExercise.WebAPI.JSON;
-using AdventureWorksExercise.WebAPI.ViewModels;
-using AdventureWorksExercise.WebAPI.ViewModels.Filtering;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace AdventureWorksExercise.WebAPI.Controllers.V1
 {
@@ -19,10 +15,9 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         public ProductsController(
             IConfiguration configuration,
-            IMapper mapper,
             ILogger<ProductsController> logger,
             EFProductDataServices productDataServices) : 
-            base(configuration, mapper, logger)
+            base(configuration, logger)
         {
             ProductDataServices = productDataServices;
         }
@@ -54,9 +49,6 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         [MapToApiVersion("1.0")]
         [HttpGet("{id:int}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
         public async Task<IActionResult> GetProductById(int id)
         {
             try
@@ -69,8 +61,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
                     return NotFound();
                 }
 
-                return Ok(Mapper
-                    .Map<ProductViewModel>(product));
+                return Ok(product);
             }
             catch (Exception ex)
             {
@@ -80,38 +71,13 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         [MapToApiVersion("1.0")]
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> GetProducts([FromQuery] ProductFilter productFilter)
+        [EnableQuery]
+        public IActionResult GetProducts()
         {
             try
-            {
-                var queryDefaults = Configuration
-                    .GetSection("QueryDefaults");
-
-                int defaultLimit = queryDefaults
-                    .GetValue<int>("DefaultLimit");
-
-                int maxLimit = queryDefaults
-                    .GetValue<int>("MaxLimit");
-
-                var paginatedQuery = productFilter
-                    .ToPaginatedQuery(defaultLimit, maxLimit);
-
-                var pagedResult = await ProductDataServices
-                    .ListAsync(paginatedQuery, DefaultIncludes);
-
-                return new JsonResult(ToViewModels<Product, ProductViewModel>(pagedResult),
-                    new JsonSerializerSettings
-                    {
-                        ContractResolver = new SelectedFieldContractResolver<ProductViewModel>(productFilter)
-                    });
-            }
-            catch (ArgumentException ex)
-            {
-                return HandleBadArguments(ex);
-            }
+            {               
+                return Ok(DefaultIncludes(ProductDataServices.DbSet.AsNoTracking()));               
+            }           
             catch (Exception ex)
             {
                 return HandleException(ex);

@@ -1,8 +1,6 @@
 ﻿using AdventureWorksExercise.Data.Models;
-using AdventureWorksExercise.Data.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Linq.Dynamic.Core;
 
 namespace AdventureWorksExercise.Data.DataServices
 {
@@ -28,13 +26,11 @@ namespace AdventureWorksExercise.Data.DataServices
 
         protected AdventureWorksDbContext DbContext { get; set; }
 
-        protected DbSet<T> DbSet { get; set; }
+        public DbSet<T> DbSet { get; protected set; }
 
         #endregion
 
         #region Abstract Members
-
-        public abstract IQueryable<T> DefaultSort(IQueryable<T> query);
 
         public abstract IQueryable<T> GetQuery(int id, IQueryable<T> query);
 
@@ -57,82 +53,6 @@ namespace AdventureWorksExercise.Data.DataServices
             return await query
                 .FirstOrDefaultAsync();
         }
-
-        public async Task<PaginatedResult<T>> ListAsync(PaginatedQuery pagedQuery, Func<IQueryable<T>, IQueryable<T>>? queryOperations = null)
-        {
-            PaginatedResult<T> pagedResult = new PaginatedResult<T>(pagedQuery);
-
-            var query = DbSet
-                .AsQueryable();
-
-            if (queryOperations != null)
-            {
-                query = queryOperations(query);
-            }
-
-            var searchString = pagedQuery.SearchString;
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                query = query
-                    .Where(searchString, pagedQuery.SearchValues
-                        .ToArray());
-            }
-
-            var sortString = pagedQuery.SortString;
-            if (string.IsNullOrEmpty(sortString))
-            {
-                query = DefaultSort(query);
-            }
-            else
-            {
-                try
-                {
-                    query = query
-                        .OrderBy(sortString);
-                }
-                catch
-                {
-                    throw new ArgumentException($"{sortString} is not a valid sort list");
-                }
-            }
-
-            int totalRecordCount = await query
-                .CountAsync();
-
-            pagedResult.TotalRecordCount = totalRecordCount;
-
-            int offset = pagedQuery.Offset;
-            int limit = pagedQuery.Limit;
-
-            query = query
-                .Skip(offset)
-                .Take(limit);
-
-            if (pagedQuery.SelectedFields.Any())
-            {
-                var selectedFields = string
-                    .Join(',', pagedQuery.SelectedFields);
-
-                try
-                {
-                    query = query
-                        .Select<T>($"new ({selectedFields})");
-                }
-                catch
-                {
-                    throw new ArgumentException($"{selectedFields} is not a valid field select list");
-                }
-            }
-
-            pagedResult.Records = await query
-                .ToListAsync();
-
-            return pagedResult;
-        }
-
-        #endregion
-
-        #region Helper Methods
 
         #endregion
     }

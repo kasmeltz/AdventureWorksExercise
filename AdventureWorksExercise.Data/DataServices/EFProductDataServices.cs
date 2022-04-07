@@ -17,10 +17,8 @@ namespace AdventureWorksExercise.Data.DataServices
 
         #region EFDataServicesBase 
 
-        public override IQueryable<Product> DefaultSort(IQueryable<Product> query) => query.OrderBy(o => o.ProductId);
-
         public override IQueryable<Product> GetQuery(int id, IQueryable<Product> query) => query.Where(o => o.ProductId == id);
-       
-        #endregion
+
+        #endregion        
     }
 }

@@ -1,13 +1,20 @@
 using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
 using AdventureWorksExercise.WebAPI.Options;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services
+    .AddControllers()
+    .AddOData(options => options.Expand().Select().Filter().OrderBy().Count().SetMaxTop(100))
+    .AddNewtonsoftJson(o =>
+    {
+        o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -34,8 +41,6 @@ builder.Services.AddVersionedApiExplorer(
     });
 
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

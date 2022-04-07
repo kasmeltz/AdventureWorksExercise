@@ -1,7 +1,3 @@
-using AdventureWorksExercise.Data.Pagination;
-using AdventureWorksExercise.WebAPI.ViewModels;
-using AdventureWorksExercise.WebAPI.ViewModels.Filtering;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdventureWorksExercise.WebAPI.Controllers.V1
@@ -13,12 +9,10 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         public ApiControllerBase(
             IConfiguration configuration,
-            IMapper mapper,
             ILogger logger)
         {
             Configuration = configuration;
             Logger = logger;
-            Mapper = mapper;
         }
 
         #endregion
@@ -27,60 +21,18 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         protected IConfiguration Configuration { get; set; }
 
-        protected IMapper Mapper { get; set; }
-
         protected ILogger Logger { get; set; }
 
         #endregion
 
         #region Helper Methods
-
-        protected PaginatedResult<K> ToViewModels<T, K>(PaginatedResult<T> pagedResult)
-        {
-            var pagedViewModels = new PaginatedResult<K>(pagedResult.Query)
-            {
-                TotalRecordCount = pagedResult.TotalRecordCount
-            };
-
-            var viewModels = new List<K>();
-
-            if (pagedResult.Records != null &&
-                pagedResult.Records.Any())
-            {
-                foreach (var record in pagedResult.Records)
-                {
-                    viewModels
-                        .Add(Mapper.Map<K>(record));
-                }
-            }
-
-            pagedViewModels.Records = viewModels;
-
-            return pagedViewModels;
-        }
-
-        protected IActionResult HandleBadArguments(ArgumentException ex)
-        {
-            var errorViewModel = new ErrorViewModel
-            {
-                Message = ex.Message
-            };
-
-            return BadRequest(new { errors = new List<ErrorViewModel> { errorViewModel } });
-        }
-
+       
         protected IActionResult HandleException(Exception ex)
         {
-            var errorViewModel = new ErrorViewModel
-            {
-                Message = ex.Message,
-                ErrorId = Guid.NewGuid()
-            };
-
             Logger
-                .LogError(ex, ex.Message, errorViewModel);
+                .LogError(ex, ex.Message);
 
-            return Problem("An unexpected error occured", errorViewModel.ErrorId.ToString(), 500, "An unexpected error occured" );
+            return Problem("An unexpected error occured", null, 500, "An unexpected error occured" );
         }
 
         #endregion
