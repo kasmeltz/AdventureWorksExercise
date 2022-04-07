@@ -1,4 +1,3 @@
-using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -16,17 +15,17 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         public ProductsController(
             IConfiguration configuration,
             ILogger<ProductsController> logger,
-            EFProductDataServices productDataServices) : 
+            AdventureWorksDbContext dbContext) : 
             base(configuration, logger)
         {
-            ProductDataServices = productDataServices;
+            DbContext = dbContext;
         }
 
         #endregion
 
         #region Members
 
-        protected EFProductDataServices ProductDataServices { get; set; }
+        protected AdventureWorksDbContext DbContext { get; set; }
 
         protected Func<IQueryable<Product>, IQueryable<Product>> DefaultIncludes = q => q
             .Include(o => o.ProductProductPhotos)
@@ -54,9 +53,10 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         {
             try
             {
-                var product = await ProductDataServices
-                    .GetById(id, DefaultIncludes);
-
+                var query = DefaultIncludes(DbContext.Products);
+                var product = await query
+                    .FirstOrDefaultAsync(o => o.ProductId == id);
+                    
                 if (product == null)
                 {
                     return NotFound();
@@ -77,7 +77,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
         {
             try
             {               
-                return Ok(DefaultIncludes(ProductDataServices.DbSet.AsNoTracking()));               
+                return Ok(DefaultIncludes(DbContext.Products.AsNoTracking()));               
             }           
             catch (Exception ex)
             {

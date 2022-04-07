@@ -1,4 +1,3 @@
-using AdventureWorksExercise.Data.DataServices;
 using AdventureWorksExercise.Data.Models;
 using AdventureWorksExercise.WebAPI.Options;
 using Microsoft.AspNetCore.OData;
@@ -16,8 +15,6 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
-
-builder.Services.AddTransient<EFProductDataServices>();
 
 builder.Services.AddDbContext<AdventureWorksDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorksDbContext")));
