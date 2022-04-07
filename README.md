@@ -3,7 +3,7 @@ AdventureWorks API exercise
 
 The API is built using OData for ASP.NET Core
 
-Some links to try:
+Some fun links to try if testing locally:
 
 https://localhost:7194/api/v1/products?$top=1
 
