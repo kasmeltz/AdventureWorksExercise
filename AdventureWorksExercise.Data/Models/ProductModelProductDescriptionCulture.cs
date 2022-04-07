@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace AdventureWorksExercise.Data.Models
 {
@@ -27,6 +28,8 @@ namespace AdventureWorksExercise.Data.Models
 
         public virtual Culture Culture { get; set; } = null!;
         public virtual ProductDescription ProductDescription { get; set; } = null!;
+
+        [JsonIgnore]
         public virtual ProductModel ProductModel { get; set; } = null!;
     }
 }

@@ -49,6 +49,7 @@ namespace AdventureWorksExercise.WebAPI.Controllers.V1
 
         [MapToApiVersion("1.0")]
         [HttpGet("{id:int}")]
+        [EnableQuery]
         public async Task<IActionResult> GetProductById(int id)
         {
             try

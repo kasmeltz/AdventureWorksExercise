@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace AdventureWorksExercise.Data.Models
 {
@@ -35,6 +36,8 @@ namespace AdventureWorksExercise.Data.Models
         public DateTime ModifiedDate { get; set; }
 
         public virtual ProductCategory ProductCategory { get; set; } = null!;
+
+        [JsonIgnore]
         public virtual ICollection<Product> Products { get; set; }
     }
 }

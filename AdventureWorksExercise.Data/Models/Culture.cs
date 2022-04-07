@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace AdventureWorksExercise.Data.Models
 {
@@ -26,6 +27,7 @@ namespace AdventureWorksExercise.Data.Models
         /// </summary>
         public DateTime ModifiedDate { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<ProductModelProductDescriptionCulture> ProductModelProductDescriptionCultures { get; set; }
     }
 }

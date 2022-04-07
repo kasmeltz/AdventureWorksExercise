@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace AdventureWorksExercise.Data.Models
 {
@@ -42,6 +43,8 @@ namespace AdventureWorksExercise.Data.Models
 
         public virtual ICollection<ProductModelIllustration> ProductModelIllustrations { get; set; }
         public virtual ICollection<ProductModelProductDescriptionCulture> ProductModelProductDescriptionCultures { get; set; }
+
+        [JsonIgnore]
         public virtual ICollection<Product> Products { get; set; }
     }
 }

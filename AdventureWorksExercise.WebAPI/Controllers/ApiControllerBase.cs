@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace AdventureWorksExercise.WebAPI.Controllers.V1
 {
     [ApiController]
-    public class ApiControllerBase : ControllerBase
+    public class ApiControllerBase : ODataController
     {
         #region Constructors
 
