@@ -10,11 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddControllers()
-    .AddOData(options => options.Expand().Select().Filter().OrderBy().Count().SetMaxTop(100))
-    .AddNewtonsoftJson(o =>
-    {
-        o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-    });
+    .AddOData(options => options.Expand().Select().Filter().OrderBy().Count().SetMaxTop(100));    
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
